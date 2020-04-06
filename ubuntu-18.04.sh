@@ -57,17 +57,18 @@ sudo apt-get install redis-server -y > /dev/null
 # edit "supervised no" to "supervised systemd" in redis.conf
 sed -i 's/supervised no/supervised systemd/' /etc/redis/redis.conf
 
+# install pip packages
+pip install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt > /dev/null
+pip install jesse > /dev/null
 
 echo "cleaning..."
 rm ta-lib-0.4.0-src.tar.gz && rm -rf ta-lib
-
-
-echo "Finished stack installation. You may now create a database, pull Jesse, and start trading."
+echo "Finished installation. "
 end=`date +%s`
 runtime=$((end-start))
 echo "Installation took ${runtime} seconds."
 echo "Notice not to use python3 and pip3, but instead use python and pip."
-echo "Here's the output of 'python --version' (it should be 'Python 3.8.1'):"
+echo "Here's the output of 'python --version' (it should be 'Python 3.8.*'):"
 python --version
-echo "Here's the output of 'pip --version' (it should start with 'pip 19.3.1'):"
+echo "Here's the output of 'pip --version':"
 pip --version
