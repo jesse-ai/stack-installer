@@ -3,63 +3,63 @@
 start=`date +%s`
 
 echo "updaing ubuntu..."
-sudo apt-get -y update > /dev/null
-sudo apt-get -y upgrade > /dev/null
+sudo apt-get -y update
+sudo apt-get -y upgrade
 
 # python 3.8
 echo "installing Python 3.8 ..."
-sudo apt-get -y install gcc binutils > /dev/null
-sudo apt-get update > /dev/null
-sudo apt-get install software-properties-common > /dev/null
-sudo add-apt-repository -y ppa:deadsnakes/ppa > /dev/null
-sudo apt-get update -y > /dev/null
-sudo apt-get -y install python-pip > /dev/null
-sudo apt-get -y install python-setuptools > /dev/null
-sudo apt-get -y install build-essential python3.8-dev > /dev/null
-sudo apt-get update > /dev/null
-sudo apt-get install build-essential > /dev/null
+sudo apt-get -y install gcc binutils
+sudo apt-get update
+sudo apt-get install software-properties-common
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt-get update -y
+sudo apt-get -y install python-pip
+sudo apt-get -y install python-setuptools
+sudo apt-get -y install build-essential python3.8-dev
+sudo apt-get update
+sudo apt-get install build-essential
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 9
 sudo update-alternatives  --set python /usr/bin/python3.8
 echo "Python 3.8 has been set as default python"
-sudo apt-get -y install python-dev > /dev/null
-sudo apt-get -y install python3-pip > /dev/null
-python -m pip install --upgrade pip > /dev/null
-hash -d pip > /dev/null
-pip install -U setuptools > /dev/null
-pip install --upgrade setuptools > /dev/null
-pip install ez_setup > /dev/null
-pip install Cython numpy > /dev/null
+sudo apt-get -y install python-dev
+sudo apt-get -y install python3-pip
+python -m pip install --upgrade pip
+hash -d pip
+pip install -U setuptools
+pip install --upgrade setuptools
+pip install ez_setup
+pip install Cython numpy
 
 
 # talib
 echo "installing talib ..."
-sudo apt-get -y install libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev python3.8-dev > /dev/null
+sudo apt-get -y install libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev python3.8-dev
 wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz -q
-tar -xzf ta-lib-0.4.0-src.tar.gz > /dev/null
+tar -xzf ta-lib-0.4.0-src.tar.gz
 cd ta-lib/ 
-./configure --prefix=/usr > /dev/null
-make > /dev/null
-sudo make install > /dev/null
+./configure --prefix=/usr
+make
+sudo make install
 
 # install PosgreSQL database
 echo "installing PostgreSQL ..."
 cd
-sudo apt-get install wget ca-certificates > /dev/null
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add - && sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list' > /dev/null
-sudo apt-get update -y > /dev/null
-sudo apt-get install -y postgresql postgresql-contrib python-psycopg2 libpq-dev > /dev/null
+sudo apt-get install wget ca-certificates
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add - && sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+sudo apt-get update -y
+sudo apt-get install -y postgresql postgresql-contrib python-psycopg2 libpq-dev
 
 # install Redis
 echo "installing Redis..."
-sudo apt-get -y update > /dev/null
-sudo apt-get install redis-server -y > /dev/null
+sudo apt-get -y update
+sudo apt-get install redis-server -y
 # edit "supervised no" to "supervised systemd" in redis.conf
 sed -i 's/supervised no/supervised systemd/' /etc/redis/redis.conf
 
 # install pip packages
-pip install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt > /dev/null
-pip install jesse > /dev/null
+pip install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt
+pip install jesse
 
 echo "cleaning..."
 rm ta-lib-0.4.0-src.tar.gz && rm -rf ta-lib
