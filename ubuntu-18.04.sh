@@ -50,13 +50,6 @@ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-
 sudo apt-get update -y
 sudo apt-get install -y postgresql postgresql-contrib python-psycopg2 libpq-dev
 
-# install Redis
-echo "installing Redis..."
-sudo apt-get -y update
-sudo apt-get install redis-server -y
-# edit "supervised no" to "supervised systemd" in redis.conf
-sed -i 's/supervised no/supervised systemd/' /etc/redis/redis.conf
-
 # install pip packages
 pip install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt
 pip install jesse
