@@ -2,12 +2,12 @@
 
 A bash script used to install below stack for running Jesse on a fresh Ubuntu 18.04:
 
--   Python >= `3.8`
--   PostgreSQL >= `13`
--   ta-lib >= `0.4`
--   pip >= `21.0.1`
--   Oh My Zsh
--   Screen
+- Python >= `3.8`
+- PostgreSQL >= `13`
+- ta-lib >= `0.4`
+- pip >= `21.0.1`
+- Oh My Zsh
+- Screen
 
 ## Installation
 
