@@ -14,7 +14,7 @@ A bash script used to install below stack for running Jesse on a fresh Ubuntu 18
 Make sure your Ubuntu 18.04 is fresh:
 
 ```sh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)"
+source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)
 ```
 
 ### Screen usage

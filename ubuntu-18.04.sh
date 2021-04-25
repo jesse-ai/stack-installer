@@ -55,6 +55,7 @@ sudo apt-get install -y screen
 echo "installing jesse ..."
 pip install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt
 pip install jesse
+. ~/.profile
 
 echo "cleaning..."
 rm ta-lib-0.4.0-src.tar.gz && rm -rf ta-lib
