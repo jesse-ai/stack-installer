@@ -17,15 +17,15 @@ Make sure your Ubuntu 18.04 is fresh:
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)"
 ```
 
-### [Screen usage](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-screen-on-an-ubuntu-cloud-server)
+### Screen usage
 
-A must have for using Jesse's live trade on a remote server. It is used to keep the terminal sessions alive so you don't have to keep your terminal window open. 
+`screen` is a must have for using Jesse's live trade on a remote server. It is used to keep the terminal session alive so you don't have to keep your terminal app (and computer) open all the time!
 
 ```sh
 sudo apt-get install -y screen
 ```
 
-You can read more about how to use Screen at [this blog post](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-screen-on-an-ubuntu-cloud-server), but below commands are basically all that you need:
+You can read more about how to use `screen` at [this blog post](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-screen-on-an-ubuntu-cloud-server), but below commands are basically all that you need:
 
 ```sh
 # create and attach to a new screen window
