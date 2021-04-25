@@ -50,6 +50,10 @@ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-
 sudo apt-get update -y
 sudo apt-get install -y postgresql postgresql-contrib python-psycopg2 libpq-dev
 
+# install screen
+echo "installing Screen..."
+sudo apt-get install -y screen
+
 # install pip packages
 pip install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt
 pip install jesse
@@ -65,3 +69,7 @@ echo "Here's the output of 'python --version' (it should be 'Python 3.8.*'):"
 python --version
 echo "Here's the output of 'pip --version':"
 pip --version
+
+# install Oh My Zsh
+echo "installing Oh My Zsh"
+sudo apt-get install -y zsh && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"

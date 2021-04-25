@@ -1,35 +1,32 @@
 # Jesse stack installer script for Ubuntu 18.04
 
-A bash script used to install the required stack for running Jesse on a fresh Ubuntu 18.04:
+A bash script used to install below stack for running Jesse on a fresh Ubuntu 18.04:
 
 -   Python >= `3.8`
--   PostgreSQL >= `11.2`
--   Redis >= `5`
+-   PostgreSQL >= `13`
 -   ta-lib >= `0.4`
--   pip >= `19.3.0`
+-   pip >= `21.0.1`
+-   Oh My Zsh
+-   Screen
 
 ## Installation
+
 Make sure your Ubuntu 18.04 is fresh:
+
 ```sh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)"
 ```
 
-## Extra packages
-Below packages are not required to run Jesse but are very useful:
+### [Screen usage](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-screen-on-an-ubuntu-cloud-server)
 
-### [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)
+A must have for using Jesse's live trade on a remote server. It is used to keep the terminal sessions alive so you don't have to keep your terminal window open. 
 
-```sh
-sudo apt-get install -y zsh && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-### [screen](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-screen-on-an-ubuntu-cloud-server)
-A must have for using Jesse on a remote server. It is used to keep the terminal sessions alive.
 ```sh
 sudo apt-get install -y screen
 ```
 
-Usage example (maybe all the commands you need):
+You can read more about how to use Screen at [this blog post](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-screen-on-an-ubuntu-cloud-server), but below commands are basically all that you need:
+
 ```sh
 # create and attach to a new screen window
 screen -S name_of_the_window
