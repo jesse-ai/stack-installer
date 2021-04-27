@@ -73,4 +73,5 @@ pip --version
 
 # install Oh My Zsh
 echo "installing Oh My Zsh"
-sudo apt-get install -y zsh && sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sudo apt-get install -y git zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
