@@ -1,4 +1,4 @@
-#!/bin/bash
+#!usr/bin/env bash
 
 start=`date +%s`
 
@@ -20,7 +20,7 @@ pip3 install ez_setup
 pip3 install Cython numpy
 
 # talib
-echo "installing talib ..."
+echo "installing talib ... (you should have more then 1Gb free of ram)"
 sudo apt-get -y install libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
 wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz -q
 tar -xzf ta-lib-0.4.0-src.tar.gz
