@@ -1,20 +1,26 @@
-# Jesse stack installer script for Ubuntu 18.04
+# Jesse stack installer scripts for Ubuntu LTS
 
-A bash script used to install below stack for running Jesse on a fresh Ubuntu 18.04:
+Bash scripts used to install below stack for running Jesse on fresh Ubuntu LTS installations:
 
--   Python >= `3.8`
--   PostgreSQL >= `13`
--   ta-lib >= `0.4`
--   pip >= `21.0.1`
--   Oh My Zsh
--   Screen
+- Python >= `3.8`
+- PostgreSQL >= `13`
+- ta-lib >= `0.4`
+- pip >= `21.0.1`
+- Oh My Zsh
+- Screen
+
+Currently there is one script for Ubuntu 18.04 LTS and one script for Ubuntu 20.04 LTS.
 
 ## Installation
 
-Make sure your Ubuntu 18.04 is fresh:
+Make sure your Ubuntu installaton is fresh and execute the appropriate command for your release.
 
 ```sh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)"
+# For Ubuntu 18.04 LTS
+source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)
+
+# For Ubuntu 20.04 LTS
+source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-20.04.sh)
 ```
 
 ### Screen usage
