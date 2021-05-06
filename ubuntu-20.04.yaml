@@ -1,0 +1,59 @@
+---
+- name: "Install Jesse Stack"
+  hosts: localhost
+  connection: local
+  become: true
+  become_user: 'root'
+
+  tasks:
+
+  - name: "updating ubuntu"
+    apt:
+      upgrade: dist
+      update_cache: yes
+
+  # python 3.x extensions & toold
+  - name: "installing Python 3.x extensions and other tools..."
+    apt:
+      state: latest
+      pkg:
+      - git
+      - zsh
+      - screen
+      - binutils
+      - build-essential
+      - software-properties-common
+      - python-is-python3
+      - cython3
+      - python3-dev
+      - python3-pip
+      - python3-setuptools
+
+  # install PosgreSQL database
+  - name: "installing PostgreSQL"
+    apt:
+      state: latest
+      pkg:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+      - libpq-dev
+
+  - name: "installing"
+    pip:
+      name:
+      - ez_setup
+
+  # install pip packages for jesse
+  - name: "installing jesse requirements"
+    pip:
+      requirements: https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt
+
+  - name: "installing jesse"
+    pip:
+      name: jesse
+
+  # install Oh My Zsh
+  - name: "installing Oh My Zsh"
+    shell: 'curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash -'
+...

@@ -23,6 +23,27 @@ source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/m
 source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-20.04.sh)
 ```
 
+### Installation with Ansible
+
+It's only available for Ubuntu 20.04 for now. Install Ansible before running it.
+
+NOTE: This is experimental!
+
+```sh
+# Install Ansible
+sudo apt -y install ansible
+
+# Clone this repo
+git clone https://github.com/jesse-ai/stack-installer.git
+
+# Enter the repo and run the Ansible Playbook
+cd stack-installer
+
+ansible-playbook ubuntu-20.04.yaml
+```
+
+NOTE: It will install for the `root` user! It should be trivial to `become_user` per task or to run it as a regular user and just `become: true` for the tasks that requires `root` access.
+
 ### Screen usage
 
 `screen` is a must have for using Jesse's live trade on a remote server. It is used to keep the terminal session alive so you don't have to keep your terminal app (and computer) open all the time!
