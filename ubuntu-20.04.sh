@@ -44,6 +44,10 @@ sudo apt-get install -y screen
 echo "installing jesse ..."
 pip3 install -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt
 pip3 install jesse
+
+# point python to python3
+echo "alias python=python3" >> ~/.profile
+echo "alias pip=pip3" >> ~/.profile
 . ~/.profile
 
 echo "cleaning..."
@@ -52,10 +56,10 @@ echo "Finished installation. "
 end=`date +%s`
 runtime=$((end-start))
 echo "Installation took ${runtime} seconds."
-echo "Here's the output of 'python3 --version' (it should be 'Python 3.x.x'):"
-python3 --version
-echo "Here's the output of 'pip3 --version':"
-pip3 --version
+echo "Here's the output of 'python --version' (it should be 'Python 3.x.x'):"
+python --version
+echo "Here's the output of 'pip --version':"
+pip --version
 
 # install Oh My Zsh
 echo "installing Oh My Zsh"
