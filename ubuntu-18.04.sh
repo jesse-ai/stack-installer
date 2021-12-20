@@ -49,6 +49,9 @@ wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-
 sudo apt-get update -y
 sudo apt-get install -y postgresql postgresql-contrib python-psycopg2 libpq-dev
 
+# install redis
+sudo apt-get install redis-server -y
+
 # install screen
 echo "installing Screen ..."
 sudo apt-get install -y screen
