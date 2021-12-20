@@ -47,7 +47,7 @@ cd
 sudo apt-get install wget ca-certificates
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add - && sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
 sudo apt-get update -y
-sudo apt-get install -y postgresql postgresql-contrib python-psycopg2 libpq-dev
+sudo apt-get install -y postgresql-14 postgresql-contrib python-psycopg2 libpq-dev
 
 # install redis
 sudo apt-get install redis-server -y
