@@ -1,4 +1,4 @@
-# Jesse stack installer scripts for Ubuntu LTS
+# Jesse stack installer scripts for Ubuntu 20.04 LTS
 
 Bash scripts used to install below stack for running Jesse on fresh Ubuntu LTS installations:
 
@@ -10,17 +10,11 @@ Bash scripts used to install below stack for running Jesse on fresh Ubuntu LTS i
 - Oh My Zsh
 - Screen
 
-Currently there is one script for Ubuntu `18.04` LTS and one script for Ubuntu `20.04` LTS.
-
 ## Installation
 
 Make sure your Ubuntu installation is fresh and execute the appropriate command for your release.
 
 ```sh
-# For Ubuntu 18.04 LTS
-source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-18.04.sh)
-
-# For Ubuntu 20.04 LTS
 source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-20.04.sh)
 ```
 
