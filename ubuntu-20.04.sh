@@ -7,6 +7,13 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get -y dist-upgrade
 
+# avoid fresh Ubuntu bug that prevented Jesse from installing, see: 
+# https://bugs.launchpad.net/ubuntu/+source/distro-info/+bug/1991606
+# https://github.com/pypa/setuptools/issues/3772
+if [[ $(lsb_release -rs) == "22.04" ]]; then 
+      sudo apt autoremove python3-debian python3-distro-info
+fi
+
 # python 3.x extensions
 echo "installing Python 3.x extensions ..."
 sudo apt-get -y install gcc binutils
