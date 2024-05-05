@@ -1,8 +1,8 @@
-# Jesse stack installer scripts for Ubuntu 20.04 LTS
+# Jesse stack installer scripts for Ubuntu
 
-Bash scripts used to install below stack for running Jesse on fresh Ubuntu LTS installations:
+Bash scripts used to install the following stack for running Jesse on fresh Ubuntu installations:
 
-- Python >= `3.8`
+- Python >= `3.8` for Ubuntu 20.04 LTS or Python >= `3.11` for Ubuntu 22.04 LTS (recommended)
 - PostgreSQL >= `13`
 - Redis >= `5`
 - ta-lib >= `0.4`
@@ -14,8 +14,16 @@ Bash scripts used to install below stack for running Jesse on fresh Ubuntu LTS i
 
 Make sure your Ubuntu installation is fresh and execute the appropriate command for your release.
 
+For Ubuntu 20.04 LTS:
+
 ```sh
 source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-20.04.sh)
+```
+
+For Ubuntu 22.04 LTS (recommended):
+
+```sh
+source <(curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-22.04.sh)
 ```
 
 ### Screen usage
