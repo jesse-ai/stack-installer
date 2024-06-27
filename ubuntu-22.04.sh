@@ -20,7 +20,7 @@ sudo -H pip3 install --upgrade pip
 hash -d pip3
 pip3 install --upgrade setuptools
 pip3 install ez_setup
-pip3 install Cython numpy==1.23.0
+pip3 install numpy==1.23.0 Cython
 
 # talib
 echo "installing talib ... (you should have more then 1Gb free of ram)"
