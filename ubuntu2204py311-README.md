@@ -1,5 +1,3 @@
-I'll start with the README.md first, so you can review the structure and changes, then we'll move to the script. Here's the README.md:
-
 ```markdown
 # Jesse AI Installation Script
 
@@ -92,5 +90,3 @@ jesse run
 - Configuration directory: `/opt/jesse/config`
 - Virtual environment: `/opt/jesse_env`
 ```
-
-Would you like me to proceed with the installation script next?
