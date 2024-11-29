@@ -242,6 +242,8 @@ fi
 EOL
 done
 
+git clone https://github.com/jesse-ai/project-template /opt/jesse/my-bot
+
 # Cleanup
 log_info "Cleaning up..."
 rm -f ta-lib-0.4.0-src.tar.gz || log_error "Failed to remove TA-Lib archive"
@@ -257,7 +259,7 @@ log_info "Installation completed in ${runtime} seconds"
 log_info "Ubuntu version: ${UBUNTU_VERSION}"
 log_info "Python version: $(python3 --version)"
 log_info "Pip version: $(python3 -m pip --version)"
-log_info "Jesse version: $(python3 -c 'import jesse; print(jesse.__version__)')"
+#log_info "Jesse version: $(python3 -c 'import jesse; print(jesse.__version__)')"
 log_info "PostgreSQL version: $(psql --version)"
 log_info "Redis version: $(redis-cli --version)"
 log_info "Log file: ${LOG_FILE}"
