@@ -51,10 +51,14 @@ apt-get -y update || log_error "Failed to update package list"
 apt-get -y upgrade || log_error "Failed to upgrade packages"
 apt-get -y dist-upgrade || log_error "Failed to perform distribution upgrade"
 
-# Install Python and dependencies
+
+# Python installation
 echo "Installing Python ${PYTHON_VERSION} and dependencies ..."
 apt-get -y install gcc binutils build-essential software-properties-common || log_error "Failed to install build essentials"
-apt-get -y install python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-venv || log_error "Failed to install Python"
+add-apt-repository ppa:deadsnakes/ppa -y || log_error "Failed to add Python repository"
+apt-get update -y || log_error "Failed to update package list"
+apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-venv || log_error "Failed to install Python"
+Copy
 
 # Verify Python version
 installed_python_version=$(${PYTHON_CMD} --version)
