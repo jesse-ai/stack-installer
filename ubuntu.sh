@@ -1,4 +1,3 @@
-```bash
 #!/usr/bin/env bash
 
 #############################################
@@ -173,7 +172,7 @@ apt-get install -y postgresql-${PG_VERSION} postgresql-contrib python3-psycopg2 
 # Configure PostgreSQL
 log_info "Configuring PostgreSQL..."
 sudo -u postgres psql -c "CREATE DATABASE jesse_db;" || log_error "Failed to create database"
-sudo -u postgres psql -c "CREATE USER jesse_user WITH PASSWORD 'password123';" || log_error "Failed to create database user"
+sudo -u postgres psql -c "CREATE USER jesse_user WITH PASSWORD 'password';" || log_error "Failed to create database user"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jesse_db TO jesse_user;" || log_error "Failed to grant privileges"
 
 # Verify PostgreSQL
@@ -265,4 +264,3 @@ log_info "Redis version: $(redis-cli --version)"
 log_info "Log file: ${LOG_FILE}"
 log_info "============================================"
 log_info "Please log out and back in for all changes to take effect."
-```
