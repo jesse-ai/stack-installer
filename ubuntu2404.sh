@@ -58,7 +58,6 @@ apt-get -y install gcc binutils build-essential software-properties-common || lo
 add-apt-repository ppa:deadsnakes/ppa -y || log_error "Failed to add Python repository"
 apt-get update -y || log_error "Failed to update package list"
 apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-venv || log_error "Failed to install Python"
-Copy
 
 # Verify Python version
 installed_python_version=$(${PYTHON_CMD} --version)
