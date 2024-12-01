@@ -18,7 +18,7 @@ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 
 sudo apt-get -y install build-essential
 sudo -H pip3 install --upgrade pip
 hash -d pip3
-pip3 install --upgrade setuptools
+pip3 install setuptools==65.5.0
 pip3 install ez_setup
 pip3 install numpy==1.23.0 Cython
 

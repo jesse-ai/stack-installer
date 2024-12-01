@@ -15,7 +15,7 @@ sudo apt-get -y install python3-dev python3-pip python3-setuptools
 sudo apt-get -y install build-essential
 sudo -H pip3 install --upgrade pip
 hash -d pip3
-pip3 install --upgrade setuptools
+pip3 install setuptools==65.5.0
 pip3 install ez_setup
 pip3 install numpy==1.23.0 Cython
 
