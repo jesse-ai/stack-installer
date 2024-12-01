@@ -2,9 +2,9 @@
 
 #############################################
 # Jesse AI Installation Script
-# Supported Systems: Ubuntu 22.04 LTS
+# Supported Systems: Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
 # Version: 2.0
-# Last Updated: 2024-12-01
+# Last Updated: 2024-11-29
 #
 # Requirements:
 # - Ubuntu 22.04 or 24.04
