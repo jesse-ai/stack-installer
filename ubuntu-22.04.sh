@@ -133,21 +133,6 @@ if [[ $(which python3) != ${VENV_PATH}* ]]; then
     exit 1
 fi
 
-# Install TA-Lib dependencies
-log_info "Installing TA-Lib dependencies..."
-apt-get -y install libncurses5-dev libgdbm-dev libnss3-dev libssl-dev \
-    libreadline-dev libffi-dev || log_error "Failed to install TA-Lib dependencies"
-
-# Install and compile TA-Lib
-log_info "Installing TA-Lib..."
-wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz -q || log_error "Failed to download TA-Lib"
-tar -xzf ta-lib-0.4.0-src.tar.gz || log_error "Failed to extract TA-Lib"
-cd ta-lib/
-./configure --prefix=/usr || log_error "Failed to configure TA-Lib"
-make || log_error "Failed to make TA-Lib"
-make install || log_error "Failed to install TA-Lib"
-cd ..
-
 # Install core Python packages
 log_info "Installing core Python packages..."
 python3 -m pip install numpy==1.23.0 Cython || log_error "Failed to install core Python packages"
