@@ -1,251 +1,208 @@
 #!/usr/bin/env bash
 
 #############################################
-# Jesse AI Installation Script
-# Supported Systems: Ubuntu 22.04 LTS
-# Version: 2.0
-# Last Updated: 2024-12-01
+# Jesse stack installer
+# Supported system: Ubuntu 22.04 LTS (fresh install)
+# Last updated: 2026-10-24
 #
-# Requirements:
-# - Ubuntu 22.04 or 24.04
-# - Root access
-# - Minimum 2GB RAM
+# Installs:
+# - Miniconda with a "jesse" conda environment (Python 3.12 by default)
+# - PostgreSQL 17 with TimescaleDB, plus the jesse_db database and jesse_user
+# - Jesse (latest from PyPI) and a project created from jesse-ai/project-template
+# - Screen, Zsh and Oh My Zsh
 #
 # Usage:
-# 1. Save this script as install-jesse.sh
-# 2. Make it executable: chmod +x install-jesse.sh
-# 3. Run as root: sudo ./install-jesse.sh
+#   curl -fsSL https://raw.githubusercontent.com/jesse-ai/stack-installer/master/ubuntu-22.04.sh -o install-jesse.sh
+#   sudo bash install-jesse.sh
 #
-# This script will:
-# - Install Python 3.11 and required dependencies
-# - Set up PostgreSQL database
-# - Install and configure Redis
-# - Install TA-Lib
-# - Install and configure Jesse
-# - Set up shell environment (bash and zsh)
+# Options (environment variables):
+#   PYTHON_VERSION=3.12      Python version of the conda environment
+#   PG_VERSION=17            PostgreSQL major version
+#   PROJECT_NAME=my-bot      Name of the project directory created in your home
+#   INSTALL_OH_MY_ZSH=yes    Set to "no" to skip Zsh / Oh My Zsh
 #############################################
 
-# Error handling functions
-log_error() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[ERROR] ${timestamp} - $1" >&2
-    echo "[ERROR] ${timestamp} - $1" >> "${LOG_FILE}"
-    echo "Check the logs at ${LOG_FILE} for details"
-}
+SUPPORTED_UBUNTU="22.04"
+
+PYTHON_VERSION="${PYTHON_VERSION:-3.12}"
+PG_VERSION="${PG_VERSION:-17}"
+PROJECT_NAME="${PROJECT_NAME:-my-bot}"
+INSTALL_OH_MY_ZSH="${INSTALL_OH_MY_ZSH:-yes}"
+DB_NAME="jesse_db"
+DB_USER="jesse_user"
+DB_PASSWORD="password"
+
+LOG_DIR="/var/log/jesse"
+LOG_FILE="${LOG_DIR}/jesse_install.log"
 
 log_info() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[INFO] ${timestamp} - $1"
-    echo "[INFO] ${timestamp} - $1" >> "${LOG_FILE}"
+    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
-check_command() {
-    if ! command -v "$1" &> /dev/null; then
-        log_error "Failed to install $1"
-        exit 1
+log_error() {
+    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $1" >&2
+    echo "Check the log at ${LOG_FILE} for details" >&2
+}
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run this script as root, for example: sudo bash ubuntu-${SUPPORTED_UBUNTU}.sh"
+    exit 1
+fi
+
+set -eEuo pipefail
+trap 'log_error "Script failed on line $LINENO: $BASH_COMMAND"' ERR
+
+mkdir -p "${LOG_DIR}"
+exec > >(tee -a "${LOG_FILE}") 2>&1
+
+start=$(date +%s)
+export DEBIAN_FRONTEND=noninteractive
+
+# A fresh server is often still running cloud-init or automatic updates; wait for the apt lock instead of failing.
+apt_get() {
+    apt-get -o DPkg::Lock::Timeout=900 "$@"
+}
+
+# The user who gets Miniconda and the Jesse project: the sudo caller, or root.
+TARGET_USER="${SUDO_USER:-root}"
+TARGET_HOME="$(getent passwd "${TARGET_USER}" | cut -d: -f6)"
+CONDA_DIR="${TARGET_HOME}/miniconda3"
+PROJECT_DIR="${TARGET_HOME}/${PROJECT_NAME}"
+
+as_user() {
+    if [ "${TARGET_USER}" = "root" ]; then
+        bash -c "$1"
+    else
+        sudo -u "${TARGET_USER}" -H bash -c "$1"
     fi
 }
 
-# Trap errors
-set -eE
-trap 'log_error "Script failed on line $LINENO"' ERR
-
-# Log directory setup
-LOG_DIR="/var/log/jesse"
-LOG_FILE="${LOG_DIR}/jesse_install.log"
-mkdir -p ${LOG_DIR}
-
-# Logging setup
-exec 1> >(tee -a "${LOG_FILE}")
-exec 2>&1
-
-# Define variables
-PYTHON_VERSION=3.11
-PYTHON_CMD="python${PYTHON_VERSION}"
-PIP_CMD="${PYTHON_CMD} -m pip"
-VENV_PATH="/opt/jesse_env"
-JESSE_PATH="/opt/jesse"
-start=$(date +%s)
-
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then 
-    log_error "Please run as root"
+UBUNTU_VERSION="$(. /etc/os-release && echo "${VERSION_ID}")"
+UBUNTU_CODENAME="$(. /etc/os-release && echo "${VERSION_CODENAME}")"
+if [ "${UBUNTU_VERSION}" != "${SUPPORTED_UBUNTU}" ]; then
+    log_error "This script is for Ubuntu ${SUPPORTED_UBUNTU}. Detected: ${UBUNTU_VERSION}. Use the script for your release."
     exit 1
 fi
+log_info "Ubuntu ${UBUNTU_VERSION} (${UBUNTU_CODENAME}), installing for user ${TARGET_USER}"
 
-# Version detection and validation
-UBUNTU_VERSION=$(lsb_release -rs)
-if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
-    log_error "This script is for Ubuntu 22.04 or 24.04. Detected version: $UBUNTU_VERSION"
-    exit 1
-fi
-
-log_info "Detected Ubuntu version: $UBUNTU_VERSION"
-
-# Version-specific warnings
-if [[ "$UBUNTU_VERSION" == "24.04" ]]; then
-    log_info "Note: Using Ubuntu 24.04. Some package versions may be newer than in documentation."
-    log_info "Package versions will be logged for reference."
-fi
-
-# System requirements check
 total_memory=$(free -m | awk '/^Mem:/{print $2}')
-if [ $total_memory -lt 2048 ]; then
-    log_error "Insufficient memory. Minimum 2GB RAM required, detected: ${total_memory}MB"
+if [ "${total_memory}" -lt 1900 ]; then
+    log_error "At least 2 GB of RAM is required, detected ${total_memory} MB"
     exit 1
 fi
 
-# System updates and base dependencies
-log_info "Updating Ubuntu system packages..."
-apt-get -y update || log_error "Failed to update package list"
-apt-get -y upgrade || log_error "Failed to upgrade packages"
-apt-get -y dist-upgrade || log_error "Failed to perform distribution upgrade"
+case "$(uname -m)" in
+    x86_64) CONDA_ARCH="x86_64" ;;
+    aarch64) CONDA_ARCH="aarch64" ;;
+    *) log_error "Unsupported CPU architecture: $(uname -m)"; exit 1 ;;
+esac
 
-# Install basic dependencies
-log_info "Installing basic dependencies..."
-apt-get -y install gcc binutils build-essential software-properties-common \
-    wget curl git || log_error "Failed to install build essentials"
-
-# Python installation
-log_info "Installing Python ${PYTHON_VERSION}..."
-add-apt-repository ppa:deadsnakes/ppa -y || log_error "Failed to add Python repository"
-apt-get update -y || log_error "Failed to update after adding Python repository"
-apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev \
-    python${PYTHON_VERSION}-venv || log_error "Failed to install Python"
-
-# Verify Python installation
-installed_python_version=$(${PYTHON_CMD} --version)
-if [[ ! "$installed_python_version" =~ "Python ${PYTHON_VERSION}" ]]; then
-    log_error "Python ${PYTHON_VERSION} installation failed. Got: $installed_python_version"
-    exit 1
+log_info "Updating system packages..."
+if command -v cloud-init &> /dev/null; then
+    cloud-init status --wait > /dev/null 2>&1 || true
 fi
-log_info "Python ${PYTHON_VERSION} installed successfully"
+apt_get -y update
+apt_get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade
+apt_get -y install build-essential gcc git curl wget ca-certificates gnupg lsb-release screen
 
-# Set up virtual environment
-log_info "Setting up virtual environment at ${VENV_PATH}..."
-mkdir -p ${VENV_PATH} || log_error "Failed to create virtual environment directory"
-${PYTHON_CMD} -m venv ${VENV_PATH} || log_error "Failed to create virtual environment"
-source ${VENV_PATH}/bin/activate || log_error "Failed to activate virtual environment"
+log_info "Adding the PostgreSQL and TimescaleDB repositories..."
+install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor --yes -o /etc/apt/keyrings/postgresql.gpg
+echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt ${UBUNTU_CODENAME}-pgdg main" \
+    > /etc/apt/sources.list.d/pgdg.list
+curl -fsSL https://packagecloud.io/timescale/timescaledb/gpgkey | gpg --dearmor --yes -o /etc/apt/keyrings/timescaledb.gpg
+echo "deb [signed-by=/etc/apt/keyrings/timescaledb.gpg] https://packagecloud.io/timescale/timescaledb/ubuntu/ ${UBUNTU_CODENAME} main" \
+    > /etc/apt/sources.list.d/timescaledb.list
+apt_get -y update
 
-# Verify virtual environment
-if [[ $(which python3) != ${VENV_PATH}* ]]; then
-    log_error "Virtual environment not properly activated"
-    exit 1
+log_info "Installing PostgreSQL ${PG_VERSION} and TimescaleDB..."
+apt_get -y install "postgresql-${PG_VERSION}" "postgresql-client-${PG_VERSION}" libpq-dev \
+    "timescaledb-2-postgresql-${PG_VERSION}" timescaledb-tools
+
+# Preload the TimescaleDB library and tune memory settings for this machine.
+timescaledb-tune --quiet --yes --pg-version "${PG_VERSION}" > /dev/null
+systemctl enable postgresql
+systemctl restart postgresql
+for _ in $(seq 1 30); do
+    sudo -u postgres pg_isready -q && break
+    sleep 1
+done
+sudo -u postgres pg_isready -q || { log_error "PostgreSQL did not start"; exit 1; }
+
+log_info "Creating the ${DB_NAME} database and ${DB_USER} user..."
+psql_su() { sudo -u postgres psql -v ON_ERROR_STOP=1 -qtAX "$@"; }
+if [ -z "$(psql_su -c "SELECT 1 FROM pg_roles WHERE rolname = '${DB_USER}'")" ]; then
+    psql_su -c "CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}';"
+fi
+if [ -z "$(psql_su -c "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'")" ]; then
+    psql_su -c "CREATE DATABASE ${DB_NAME} OWNER ${DB_USER};"
+fi
+psql_su -c "GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};"
+# Creating the extension needs a superuser; Jesse then sets up the candle table itself.
+psql_su -d "${DB_NAME}" -c "CREATE EXTENSION IF NOT EXISTS timescaledb WITH SCHEMA public;"
+TSDB_VERSION="$(psql_su -d "${DB_NAME}" -c "SELECT extversion FROM pg_extension WHERE extname = 'timescaledb'")"
+log_info "PostgreSQL ready with TimescaleDB ${TSDB_VERSION}"
+
+log_info "Installing Miniconda for ${TARGET_USER}..."
+if [ ! -x "${CONDA_DIR}/bin/conda" ]; then
+    as_user "curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${CONDA_ARCH}.sh -o /tmp/miniconda.sh \
+        && bash /tmp/miniconda.sh -b -u -p '${CONDA_DIR}' && rm -f /tmp/miniconda.sh"
 fi
 
-# Install core Python packages
-log_info "Installing core Python packages..."
-python3 -m pip install numpy==1.23.0 Cython || log_error "Failed to install core Python packages"
-
-# PostgreSQL version based on Ubuntu version
-if [[ "$UBUNTU_VERSION" == "24.04" ]]; then
-    PG_VERSION="15"
-else
-    PG_VERSION="13"
+log_info "Creating the 'jesse' conda environment with Python ${PYTHON_VERSION}..."
+# conda-forge only, so no Anaconda channel terms of service prompt is needed.
+if [ ! -d "${CONDA_DIR}/envs/jesse" ]; then
+    as_user "'${CONDA_DIR}/bin/conda' create -y -q -n jesse --override-channels -c conda-forge python=${PYTHON_VERSION}"
 fi
+JESSE_PY="${CONDA_DIR}/envs/jesse/bin/python"
 
-# Install PostgreSQL
-log_info "Installing PostgreSQL ${PG_VERSION}..."
-sh -c "echo 'deb https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main' > /etc/apt/sources.list.d/pgdg.list" || \
-    log_error "Failed to add PostgreSQL repository"
-wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - || \
-    log_error "Failed to add PostgreSQL key"
-apt-get update -y || log_error "Failed to update package list"
-apt-get install -y postgresql-${PG_VERSION} postgresql-contrib python3-psycopg2 libpq-dev || \
-    log_error "Failed to install PostgreSQL"
-
-# Configure PostgreSQL
-log_info "Configuring PostgreSQL..."
-sudo -u postgres psql -c "CREATE DATABASE jesse_db;" || log_error "Failed to create database"
-sudo -u postgres psql -c "CREATE USER jesse_user WITH PASSWORD 'password';" || log_error "Failed to create database user"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jesse_db TO jesse_user;" || log_error "Failed to grant privileges"
-
-# Verify PostgreSQL
-if ! systemctl is-active --quiet postgresql; then
-    log_error "PostgreSQL service is not running"
-    exit 1
-fi
-log_info "PostgreSQL configured successfully"
-
-# Install Redis
-log_info "Installing Redis..."
-apt-get install -y redis-server || log_error "Failed to install Redis"
-systemctl enable redis-server || log_error "Failed to enable Redis service"
-systemctl start redis-server || log_error "Failed to start Redis service"
-
-# Verify Redis
-if ! systemctl is-active --quiet redis-server; then
-    log_error "Redis service is not running"
-    exit 1
-fi
-redis-cli ping > /dev/null || log_error "Redis is not responding"
-log_info "Redis installed and running"
-
-# Install Screen
-log_info "Installing Screen..."
-apt-get install -y screen || log_error "Failed to install Screen"
-check_command screen
-
-# Install Jesse and dependencies
 log_info "Installing Jesse..."
-python3 -m pip install --no-cache-dir -r https://raw.githubusercontent.com/jesse-ai/jesse/master/requirements.txt || \
-    log_error "Failed to install Jesse requirements"
-python3 -m pip install --no-cache-dir jesse || log_error "Failed to install Jesse"
-
-# Verify Jesse installation
-python3 -c "import jesse; print(f'Jesse version: {jesse.__version__}')" || log_error "Jesse import failed"
-log_info "Jesse installed successfully"
-
-# Install Oh My Zsh and shell configuration
-log_info "Installing Oh My Zsh..."
-apt-get install -y git zsh || log_error "Failed to install git and zsh"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || \
-    log_error "Failed to install Oh My Zsh"
-
-# Create and configure Jesse directories
-mkdir -p ${JESSE_PATH}/config || log_error "Failed to create Jesse config directory"
-chown -R $SUDO_USER:$SUDO_USER ${JESSE_PATH} || log_error "Failed to set Jesse directory permissions"
-
-# Create dedicated environment file
-cat > ${JESSE_PATH}/config/jesse_env << EOL || log_error "Failed to create environment file"
-export JESSE_ENV="production"
-export JESSE_PATH="${JESSE_PATH}"
-export VIRTUAL_ENV="${VENV_PATH}"
-export PATH="\${VIRTUAL_ENV}/bin:\${PATH}"
-EOL
-
-# Configure both shells (zsh and bash)
-for rcfile in ~/.zshrc ~/.bashrc; do
-    cp ${rcfile} ${rcfile}.backup-$(date +%Y%m%d) || log_error "Failed to backup ${rcfile}"
-    cat >> ${rcfile} << EOL || log_error "Failed to update ${rcfile}"
-# Jesse Configuration
-if [ -f ${JESSE_PATH}/config/jesse_env ]; then
-    source ${JESSE_PATH}/config/jesse_env
-    source ${VENV_PATH}/bin/activate
+if [ "${PYTHON_VERSION}" != "3.12" ]; then
+    log_info "Jesse's pinned numpy has no prebuilt wheel for Python ${PYTHON_VERSION}; it is compiled from source, which takes about 10-15 minutes on a small server."
 fi
-EOL
+as_user "'${JESSE_PY}' -m pip install --no-cache-dir --upgrade pip"
+as_user "'${JESSE_PY}' -m pip install --no-cache-dir jesse"
+JESSE_VERSION="$(as_user "'${JESSE_PY}' -c 'import jesse.version as v; print(v.__version__)'")"
+log_info "Jesse ${JESSE_VERSION} installed"
+
+log_info "Creating the project at ${PROJECT_DIR}..."
+if [ ! -d "${PROJECT_DIR}" ]; then
+    as_user "git clone -q https://github.com/jesse-ai/project-template '${PROJECT_DIR}'"
+    as_user "cd '${PROJECT_DIR}' && cp .env.example .env \
+        && sed -i -e 's/^POSTGRES_HOST=.*/POSTGRES_HOST=localhost/' -e 's/^TIMESCALEDB_ENABLED=.*/TIMESCALEDB_ENABLED=TRUE/' .env"
+fi
+
+if [ "${INSTALL_OH_MY_ZSH}" = "yes" ]; then
+    log_info "Installing Zsh and Oh My Zsh..."
+    apt_get -y install zsh
+    if [ ! -d "${TARGET_HOME}/.oh-my-zsh" ]; then
+        as_user 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+    fi
+    chsh -s "$(command -v zsh)" "${TARGET_USER}"
+fi
+
+log_info "Initialising conda for the shells..."
+as_user "'${CONDA_DIR}/bin/conda' init bash > /dev/null"
+[ -f "${TARGET_HOME}/.zshrc" ] && as_user "'${CONDA_DIR}/bin/conda' init zsh > /dev/null"
+for rcfile in "${TARGET_HOME}/.bashrc" "${TARGET_HOME}/.zshrc"; do
+    if [ -f "${rcfile}" ] && ! grep -q "conda activate jesse" "${rcfile}"; then
+        printf '\n# Jesse\nconda activate jesse\n' >> "${rcfile}"
+    fi
 done
 
-git clone https://github.com/jesse-ai/project-template /opt/jesse/my-bot
+apt_get -y autoremove
+apt_get -y clean
 
-# Cleanup
-log_info "Cleaning up..."
-rm -f ta-lib-0.4.0-src.tar.gz || log_error "Failed to remove TA-Lib archive"
-rm -rf ta-lib || log_error "Failed to remove TA-Lib directory"
-
-# Installation summary
 end=$(date +%s)
-runtime=$((end-start))
 log_info "============================================"
-log_info "Installation Summary:"
-log_info "--------------------------------------------"
-log_info "Installation completed in ${runtime} seconds"
-log_info "Ubuntu version: ${UBUNTU_VERSION}"
-log_info "Python version: $(python3 --version)"
-log_info "Pip version: $(python3 -m pip --version)"
-#log_info "Jesse version: $(python3 -c 'import jesse; print(jesse.__version__)')"
-log_info "PostgreSQL version: $(psql --version)"
-log_info "Redis version: $(redis-cli --version)"
-log_info "Log file: ${LOG_FILE}"
+log_info "Installation completed in $((end - start)) seconds"
+log_info "Ubuntu:      ${UBUNTU_VERSION}"
+log_info "Python:      $("${JESSE_PY}" --version 2>&1)"
+log_info "Jesse:       ${JESSE_VERSION}"
+log_info "PostgreSQL:  $(sudo -u postgres psql -qtAX -c 'SHOW server_version' | cut -d' ' -f1)"
+log_info "TimescaleDB: ${TSDB_VERSION}"
+log_info "Project:     ${PROJECT_DIR}"
+log_info "Log file:    ${LOG_FILE}"
 log_info "============================================"
-log_info "Please log out and back in for all changes to take effect."
+log_info "Log out and back in (or open a new terminal), then run:"
+log_info "  cd ${PROJECT_DIR} && jesse run"
