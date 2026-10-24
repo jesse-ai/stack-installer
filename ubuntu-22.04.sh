@@ -6,7 +6,7 @@
 # Last updated: 2026-10-24
 #
 # Installs:
-# - Miniconda with a "jesse" conda environment (Python 3.13 by default)
+# - Miniconda with a "jesse" conda environment (Python 3.12 by default)
 # - PostgreSQL 17 with TimescaleDB, plus the jesse_db database and jesse_user
 # - Jesse (latest from PyPI) and a project created from jesse-ai/project-template
 # - Screen, Zsh and Oh My Zsh
@@ -16,7 +16,7 @@
 #   sudo bash install-jesse.sh
 #
 # Options (environment variables):
-#   PYTHON_VERSION=3.13      Python version of the conda environment
+#   PYTHON_VERSION=3.12      Python version of the conda environment
 #   PG_VERSION=17            PostgreSQL major version
 #   PROJECT_NAME=my-bot      Name of the project directory created in your home
 #   INSTALL_OH_MY_ZSH=yes    Set to "no" to skip Zsh / Oh My Zsh
@@ -24,7 +24,7 @@
 
 SUPPORTED_UBUNTU="22.04"
 
-PYTHON_VERSION="${PYTHON_VERSION:-3.13}"
+PYTHON_VERSION="${PYTHON_VERSION:-3.12}"
 PG_VERSION="${PG_VERSION:-17}"
 PROJECT_NAME="${PROJECT_NAME:-my-bot}"
 INSTALL_OH_MY_ZSH="${INSTALL_OH_MY_ZSH:-yes}"

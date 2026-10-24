@@ -2,7 +2,7 @@
 
 Bash scripts that install everything needed to run Jesse on a fresh Ubuntu server:
 
-- Miniconda, with a `jesse` conda environment (Python `3.13`)
+- Miniconda, with a `jesse` conda environment (Python `3.12`)
 - PostgreSQL `17` with TimescaleDB, and the `jesse_db` database owned by `jesse_user`
 - Jesse (latest release from PyPI)
 - A Jesse project in `~/my-bot`, created from [project-template](https://github.com/jesse-ai/project-template) and set up for this machine (`POSTGRES_HOST=localhost`, `TIMESCALEDB_ENABLED=TRUE`)
@@ -52,7 +52,7 @@ Set these environment variables before running the script to change the defaults
 
 | Variable | Default | Description |
 |---|---|---|
-| `PYTHON_VERSION` | `3.13` | Python version of the `jesse` conda environment. With 3.13, numpy is compiled from source, which adds about 10-15 minutes; `PYTHON_VERSION=3.12` installs faster |
+| `PYTHON_VERSION` | `3.12` | Python version of the `jesse` conda environment. `3.13` also works, but Jesse's pinned numpy is then compiled from source, which adds about 10-15 minutes |
 | `PG_VERSION` | `17` | PostgreSQL major version |
 | `PROJECT_NAME` | `my-bot` | Name of the project directory created in your home directory |
 | `INSTALL_OH_MY_ZSH` | `yes` | Set to `no` to skip Zsh and Oh My Zsh |
